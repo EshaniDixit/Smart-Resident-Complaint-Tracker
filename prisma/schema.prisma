@@ -1,0 +1,29 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String      @id @default(uuid())
+  username     String      @unique
+  passwordHash String
+  role         String      // "ADMIN" or "RESIDENT"
+  complaints   Complaint[]
+}
+
+model Complaint {
+  id          String   @id @default(uuid())
+  description String
+  summary     String?  // AI-generated concise summary for admin
+  category    String?
+  urgency     String?  // e.g. "Low", "Medium", "High"
+  status      String   @default("OPEN") // "OPEN", "IN_PROGRESS", "RESOLVED"
+  aiResponse  String?
+  residentId  String
+  resident    User     @relation(fields: [residentId], references: [id])
+  createdAt   DateTime @default(now())
+}
